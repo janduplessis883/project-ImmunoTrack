@@ -5,7 +5,6 @@ import functools
 init(autoreset=True)
 
 
-
 # = Decorators =================================================================
 
 
