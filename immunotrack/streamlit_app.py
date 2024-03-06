@@ -119,8 +119,7 @@ else:
         data = update_location(data)
 
 if data is not None:
-    ts = to_timeseries(data, "Event date", time_period="M")
-    plot_timeseries(ts)
+
     vaccination_schedule = {
         "2_months": [
             "Bexsero 1",
@@ -198,18 +197,6 @@ if data is not None:
     # First, filter out children under 4 months
     df_under_4_months = data[data["age_months"] < 12]
 
-    # Prepare the vaccination schedule for the first 3 months
-    vaccination_schedule = {
-        "2_months": [
-            "Bexsero 1",
-            "Rotarix 1",
-            "Infanrix Hexa 1",
-            "Prevenar - 13 1",
-            "Pediacel 1",
-        ],
-        "3_months": ["Rotarix 2", "Infanrix Hexa 2", "Prevenar 13"],
-    }
-
     # Flatten the vaccination schedule to get a list of all vaccinations up to 3 months
     all_vaccinations = (
         vaccination_schedule["2_months"] + vaccination_schedule["3_months"]
@@ -237,7 +224,20 @@ if data is not None:
         value=(0, 3),
         step=1,
     )
+    if age_range[0] < 1 or age_range[1] <= 1:
+        st.image("images/8to16weeks.png")
+    elif age_range[0] == 1 or age_range[1] == 1:
+        st.image("images/1yr.png")
+    elif age_range[0] >= 3 and age_range[1] <= 13:
+        st.image("images/3yrs.png")
+    elif age_range[0] >= 14 and age_range[1] <= 17:
+        st.image("images/14yrs.png")
+    elif age_range[0] >= 65 and age_range[1] <= 69:
+        st.image("images/65.png")
+    elif age_range[0] >= 70 and age_range[1] <= 85:
+        st.image("images/70to79.png")
 
+    # end if
     # Display the selected age range
     st.write("Selected Age Range:", age_range[0], "to", age_range[1], "years")
 
