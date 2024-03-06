@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pendulum
 import seaborn as sns
 from io import StringIO
+import base64
 
 from main import *
 from rename_vaccines import *
@@ -47,10 +48,21 @@ if quickstart:
     with open("immunotrack/markdown/quickstart.md", "r") as f:
         markdown_content = f.read()
     st.markdown(markdown_content, unsafe_allow_html=True)
+    with open("immunotrack/sampledata/ImmunoTrack-S1-Search.rpt", "rb") as file:
+        file_data = file.read()
+
+    # Create a download button
+    st.download_button(
+        label="Download ImmunoTrack-S1-Search.rpt",
+        data=file_data,
+        file_name="ImmunoTrack-S1-Search.rpt",
+        mime="application/octet-stream",
+    )
 
 toggle = st.sidebar.checkbox("Load sample data")
 
 
+@st.cache_data(ttl=60 * 60)
 def loaddata(url):
     df = pd.read_excel(url)
     df["age_years"] = df["Date of birth"].apply(
@@ -64,6 +76,7 @@ def loaddata(url):
     return df
 
 
+@st.cache_data(ttl=60 * 60)
 def loadcsv(stringio):
     df = pd.read_csv(stringio)
     df["Date of birth"] = pd.to_datetime(df["Date of birth"], dayfirst=True)
@@ -79,11 +92,7 @@ def loadcsv(stringio):
     return df
 
 
-def loadgms(stringio):
-    df = pd.read_csv(stringio)
-    return df
-
-
+@st.cache_data(ttl=60 * 60)
 def update_location(df):
     most_frequent_location = df["Event done at ID"].mode()[0]
 
@@ -109,14 +118,8 @@ else:
         data = loadcsv(stringio)
         data = update_location(data)
 
-    # Only display the file uploader if sample data is not selected
-    uploaded_gms = st.sidebar.file_uploader("Upload Pt Status csv here", type="csv")
-    if uploaded_gms is not None:
-        stringio2 = StringIO(uploaded_gms.getvalue().decode("utf-8"))
-        gms = loadgms(stringio2)
-        st.write(gms)
-
 if data is not None:
+    ts = to_timeseries(data, "Event date", time_period="M")
     plot_timeseries(ts)
     vaccination_schedule = {
         "2_months": [
