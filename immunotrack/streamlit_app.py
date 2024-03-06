@@ -64,6 +64,21 @@ def loaddata(url):
     return df
 
 
+def loadcsv(stringio):
+    df = pd.read_csv(stringio)
+    df["Date of birth"] = pd.to_datetime(df["Date of birth"], dayfirst=True)
+    df["Event date"] = pd.to_datetime(df["Event date"], dayfirst=True)
+    df["age_years"] = df["Date of birth"].apply(
+        lambda x: now.diff(pendulum.instance(x)).in_years()
+    )
+    df["age_months"] = df["Date of birth"].apply(
+        lambda x: (now.diff(pendulum.instance(x)).in_months())
+    )
+    df = map_vaccines(df)
+    df = drop_vaccines(df)
+    return df
+
+
 def update_location(df):
     most_frequent_location = df["Event done at ID"].mode()[0]
 
@@ -78,19 +93,19 @@ if toggle:
     url = "immunotrack/sampledata/sampledata.xlsx"
     data = loaddata(url)
     data = update_location(data)
+    ts = to_timeseries(data, "Event date", time_period="M")
 
 
 else:
     # Only display the file uploader if sample data is not selected
-    uploaded_file = st.sidebar.file_uploader(
-        "Choose a .csv or .xslx file", type="csv,xlsx"
-    )
+    uploaded_file = st.sidebar.file_uploader("Choose a .csv or .xslx file", type="csv")
     if uploaded_file is not None:
         stringio = StringIO(uploaded_file.getvalue().decode("utf-8"))
-        data = pd.read_csv(stringio)
+        data = loadcsv(stringio)
         data = update_location(data)
 
 if data is not None:
+    plot_timeseries(ts)
     vaccination_schedule = {
         "2_months": [
             "Bexsero 1",
@@ -231,7 +246,9 @@ if data is not None:
     ]
 
     # Sort patients by age in months before creating the 'Patient Info' field
-    filtered_vaccines_data = filtered_vaccines_data.sort_values(by="age_years")
+    filtered_vaccines_data = filtered_vaccines_data.sort_values(
+        by="Date of birth", ascending=True
+    )
 
     # Create 'Patient Info' with ID, Surname, and Age, now in sorted order
     filtered_vaccines_data["Patient Info"] = (
