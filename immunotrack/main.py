@@ -36,15 +36,15 @@ def to_timeseries(df, column, time_period="M"):
 
 def plot_timeseries(timeseries_df):
     # Create a figure with subplots
-    fig, ax = plt.subplots(figsize=(18, 6))
+    fig, ax = plt.subplots(figsize=(18, 4))
 
     sns.lineplot(
         data=timeseries_df,
         x="Event date",
         y="count",
         ax=ax,
-        hue="Vaccination type",
-        linewidth=0.8,
+        linewidth=1,
+        color="#163960",
     )
 
     ax.set_title("All vaccines delivered")
@@ -58,7 +58,7 @@ def plot_timeseries(timeseries_df):
     ax.spines["left"].set_visible(False)
 
     # Set y-axis limits to 0 and 140
-    ax.set_ylim(0, 30)
+
     ax.set_xlabel("")
     ax.set_ylabel("Vaccine Count")
 

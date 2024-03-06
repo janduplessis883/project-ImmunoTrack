@@ -79,6 +79,11 @@ def loadcsv(stringio):
     return df
 
 
+def loadgms(stringio):
+    df = pd.read_csv(stringio)
+    return df
+
+
 def update_location(df):
     most_frequent_location = df["Event done at ID"].mode()[0]
 
@@ -103,6 +108,13 @@ else:
         stringio = StringIO(uploaded_file.getvalue().decode("utf-8"))
         data = loadcsv(stringio)
         data = update_location(data)
+
+    # Only display the file uploader if sample data is not selected
+    uploaded_gms = st.sidebar.file_uploader("Upload Pt Status csv here", type="csv")
+    if uploaded_gms is not None:
+        stringio2 = StringIO(uploaded_gms.getvalue().decode("utf-8"))
+        gms = loadgms(stringio2)
+        st.write(gms)
 
 if data is not None:
     plot_timeseries(ts)
