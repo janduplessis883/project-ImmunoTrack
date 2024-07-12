@@ -167,7 +167,6 @@ reverse_name_mapping = {
         "Varicella-Zoster live vaccine 2",
         "ViATIM 1",
         "Vivotif - oral 1",
-        "Yellow Fever Single",
         "Zostavax 1",
         "Herpes Zoster vaccination (generic) 1",
     ],

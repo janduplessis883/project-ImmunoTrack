@@ -21,7 +21,7 @@ font = "sans serif"
 [deprecation]
 showPyplotGlobalUse = false
 
-[server] 
+[server]
 enableStaticServing = true
 
 [upload]
